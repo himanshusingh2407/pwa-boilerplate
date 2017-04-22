@@ -1,22 +1,33 @@
-// Copyright 2016 Google Inc.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+importScripts('cache-polyfill.js');
 
-var dataCacheName = 'pwaData-v1';
-var cacheName = 'pwaPWA-final-1';
+var dataCacheName = 'murmurData-v1';
+var cacheName = 'murmurPWA-final-1';
 var filesToCache = [
-  '/',
-  '/index.html',
-  '/scripts/app.js',
-  '/styles/style.css'
+  './',
+  './index.html',
+  './favicon.ico',
+  './manifest.json',
+  './scripts/app.js',
+  './styles/style.css',
+  './images/icons/icon-32x32.png',
+  './images/icons/icon-128x128.png',
+  './images/icons/icon-144x144.png',
+  './images/icons/icon-152x152.png',
+  './images/icons/icon-192x192.png',
+  './images/icons/icon-256x256.png'
 ];
+
+self.addEventListener('install', function(e) {
+  console.log('[ServiceWorker] Install');
+  e.waitUntil(caches.open(cacheName).then(function(cache) {
+    console.log('[ServiceWorker] Caching app shell');
+    return cache.addAll(filesToCache);
+  }));
+});
+
+self.addEventListener('fetch', function(e) {
+  console.log('[ServiceWorker] Fetch', e.request.url);
+  e.respondWith(caches.match(e.request).then(function(response) {
+    return response || fetch(e.request);
+  }));
+});
